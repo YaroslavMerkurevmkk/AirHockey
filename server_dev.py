@@ -11,6 +11,7 @@ to_write = {}
 
 clients_dict = {}
 clients_count = {}
+clients_name = {}
 
 
 class SQL_database:  # Класс базы данных, который отвечает за авторизацию и ведение логов
@@ -104,6 +105,19 @@ class SQL_database:  # Класс базы данных, который отве
                            (datetime_for_log, sign_in, login_id))
             db.commit()
 
+    def add_game_log(self, player1, player2, game_result):
+        with sqlite3.connect('Users.db') as db:
+            cursor = db.cursor()
+            current_date = datetime.now().strftime("%Y %m %d %H %M %S").split()
+            date = '.'.join(current_date[:3])
+            time = '.'.join(current_date[3:])
+            datetime_for_log = date + '-' + time
+            player1_id = cursor.execute("""SELECT id FROM users WHERE login = ?""", (player1,)).fetchone()[0][0]
+            player2_id = cursor.execute("""SELECT id FROM users WHERE login = ?""", (player2,)).fetchone()[0][0]
+            print(player1_id, player2_id)
+            cursor.execute("""INSERT INTO game_log(date, player1, player2, game_result) VALUES(?, ?, ?, ?)""",
+                           (datetime_for_log, player1_id, player2_id, game_result))
+
     def Get_users_list(self, info, filter_info):  # Возвращает список пользователей, основанный на примененных фильтрах
         with sqlite3.connect('users.db') as db:
             cursor = db.cursor()
@@ -147,11 +161,17 @@ def client(client_socket):
         else:
             key = request.decode().split()[0]
             req_text = request.decode().split()[1:]
-            if key == 'gol':
-                print('gol')
+            if key == '':
+                print('-------------------------------------')
+                for sock in clients_name:
+                    if sock != client_socket:
+                        enemy_name = clients_name[sock]
+                client_socket.send(f'end {enemy_name}'.encode())
+            elif key == 'game_log':
+                database.add_game_log(req_text[0], req_text[1], req_text[2])
+            elif key == 'gol':
                 clients_count[client_socket] += 1
             elif key == 'autogol':
-                print('autogol')
                 for sock in clients_count:
                     if sock != client_socket:
                         clients_count[sock] += 1
@@ -159,6 +179,7 @@ def client(client_socket):
                 result = database.Auth(req_text[0], req_text[1])
                 result1 = ''
                 if result == req_text[0]:
+                    clients_name[client_socket] = req_text[0]
                     database.add_log(req_text[0], 'entrance')
                     result1 = database.get_info(result)
                 client_socket.send(f'auth {result} {result1}'.encode())

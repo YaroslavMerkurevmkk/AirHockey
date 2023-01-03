@@ -41,19 +41,23 @@ class Connect_to_server:
                 elif int(red_count) == 7:
                     self.client_socket.send('stop LOSE'.encode())
                     print('send lose')
+            elif data_key == 'end':
+                self.client_socket.send(
+                    f'game_log {CURRENT_LOGIN} {data_text[0]} {A_result_label.text.split()[1]}'.encode())
             elif data_key == 'stop':
                 if data_text[0] == 'WIN':
                     count = 0
                     print('get win')
                     Play = False
-                    A_result_label.set_text('You WIN!')
+                    A_result_label.set_text('You LOSE!')
                     CURRENT_MANAGER = after_game_manager
                 elif data_text[0] == 'LOSE':
                     count = 0
                     print('get lose')
                     Play = False
-                    A_result_label.set_text('You LOSE!')
+                    A_result_label.set_text('You WIN!')
                     CURRENT_MANAGER = after_game_manager
+                self.client_socket.send(''.encode())
 
             elif data_key == 'Error':
                 C_status_error.show()
