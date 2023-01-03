@@ -167,15 +167,15 @@ def client(client_socket):
                     if sock != client_socket:
                         enemy_name = clients_name[sock]
                 client_socket.send(f'end {enemy_name}'.encode())
-            elif key == 'game_log':
+            elif key == 'game_log':  # получает результаты игры и логины игроков для записи лога
                 database.add_game_log(req_text[0], req_text[1], req_text[2])
-            elif key == 'gol':
+            elif key == 'gol':  # обрабатывает гол
                 clients_count[client_socket] += 1
-            elif key == 'autogol':
+            elif key == 'autogol':  # обрабатывает автогол
                 for sock in clients_count:
                     if sock != client_socket:
                         clients_count[sock] += 1
-            elif key == 'auth':
+            elif key == 'auth':  # осуществляется попытка авторизации пользователя
                 result = database.Auth(req_text[0], req_text[1])
                 result1 = ''
                 if result == req_text[0]:
@@ -185,7 +185,7 @@ def client(client_socket):
                 client_socket.send(f'auth {result} {result1}'.encode())
                 yield ('write', client_socket)
 
-            elif key == 'create':
+            elif key == 'create':  # создание аккаунта
                 if len(req_text) != 0:
                     result = database.AddUser(req_text[0], req_text[1], req_text[2], req_text[3])
                 else:
@@ -193,7 +193,7 @@ def client(client_socket):
                 client_socket.send(result.encode())
                 yield ('write', client_socket)
 
-            elif key == 'rl':
+            elif key == 'rl':  # проверяется валидность логина при восстановлении пароля
                 try:
                     result = database.Get_question(req_text[0])
                     result = f'rl {result}'
@@ -202,29 +202,29 @@ def client(client_socket):
                 client_socket.send(result.encode())
                 yield ('write', client_socket)
 
-            elif key == 'ra':
+            elif key == 'ra':  # проверка на правильность ответа на секретный вопрос
                 if database.Send_answer(req_text[0], ' '.join(req_text[1:])):
                     client_socket.send('ra True'.encode())
                 else:
                     client_socket.send('ra False'.encode())
                 yield ('write', client_socket)
 
-            elif key == 'rp':
+            elif key == 'rp':  # запись нового пароля на аккаунта
                 if len(req_text) != 0:
                     database.New_password(req_text[0], req_text[1])
                     client_socket.send('rp True'.encode())
                     yield ('write', client_socket)
 
-            elif key == 'exit':
+            elif key == 'exit':  # выход из учетной записи пользователя и запись в лог
                 database.add_log(req_text[0], req_text[1])
-            elif key == 'stop':
+            elif key == 'stop':  # пакет, в котором говорится о том, что игра прекращена
                 if req_text[0] == 'WIN':
                     client_socket.send('stop WIN'.encode())
                     yield ('write', client_socket)
                 elif req_text[0] == 'LOSE':
                     client_socket.send('stop LOSE'.encode())
                     yield ('write', client_socket)
-            else:
+            else:  # во время игры пользователи постоянно обмениваются координатами врага и шайбы
                 for sock in clients_dict:
                     if sock != client_socket:
                         print(request.decode())

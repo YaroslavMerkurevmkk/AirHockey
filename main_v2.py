@@ -25,9 +25,9 @@ class Connect_to_server:
         global CURRENT_LOGIN, CURRENT_MANAGER, WINS, LOSE, REG_DATE, Play, WIN_OR_LOSE, count
         data = self.client_socket.recv(4092)
         if data:
-            data_key = data.decode().split()[0]
-            data_text = data.decode().split()[1:]
-            if data_key == 'coords':
+            data_key = data.decode().split()[0]  # key служит для распределения пакетов
+            data_text = data.decode().split()[1:]  # информация, которая зависит от ключа
+            if data_key == 'coords':  # координаты врага и шайбы для получения синхронного изображения
                 print(data_text)
                 new_enemy_coord, new_shaiba_coord, blue_count, red_count = data_text[:2], data_text[2:4], \
                                                                            data_text[-2], data_text[-1]
@@ -35,20 +35,21 @@ class Connect_to_server:
                 for sprite in shaiba_sprite:
                     sprite.new_coords(new_shaiba_coord)
                 Count.update_count(blue_count, red_count)
-                if int(blue_count) == 7:
+                if int(blue_count) == 7:  # если один из счетчиков достигает 7, то на сервет отправляется событие остановки
                     self.client_socket.send('stop WIN'.encode())
                     print('send win')
                 elif int(red_count) == 7:
                     self.client_socket.send('stop LOSE'.encode())
                     print('send lose')
-            elif data_key == 'end':
+            elif data_key == 'end':  # клиент получает этот пакет в ответ на пустой запрос,
+                # который отправляется серверу, после получения результатов от сервера
                 self.client_socket.send(
                     f'game_log {CURRENT_LOGIN} {data_text[0]} {A_result_label.text.split()[1]}'.encode())
-            elif data_key == 'stop':
+            elif data_key == 'stop':  # ответ от сервера на конец игры, нужно для синхронной остановки игры на обоих клиентах
                 if data_text[0] == 'WIN':
                     count = 0
                     print('get win')
-                    Play = False
+                    Play = False  # прекражение цикла игры
                     A_result_label.set_text('You LOSE!')
                     CURRENT_MANAGER = after_game_manager
                 elif data_text[0] == 'LOSE':
@@ -62,7 +63,7 @@ class Connect_to_server:
             elif data_key == 'Error':
                 C_status_error.show()
 
-            elif data_key == 'auth':
+            elif data_key == 'auth':  # отправка данных для попытки авторизации
                 if data_text[0] == B_login_enter.get_text():
                     B_status_error.hide()
                     CURRENT_LOGIN = data_text[0]
@@ -73,13 +74,13 @@ class Connect_to_server:
                 else:
                     B_status_error.show()
 
-            elif data_key == 'create':
+            elif data_key == 'create':  # создание нового аккаунта
                 if len(data_text) == 1:
                     C_status_succes.show()
                     C_status_passwords.hide()
                 else:
                     C_status_error.show()
-            elif data_key == 'rl':
+            elif data_key == 'rl':  # получение ответа от сервера на валидность логина
                 if data_text[0] != 'Error':
                     R_secret_question_label.set_text(' '.join(data_text))
                     R_login_enter.disable()
@@ -94,7 +95,7 @@ class Connect_to_server:
                 else:
                     R_status_login.show()
 
-            elif data_key == 'ra':
+            elif data_key == 'ra':  # получение ответа от сервера на правильность ответа на секретный вопрос
                 if data_text[0] == 'True':
                     R_password_label.show()
                     R_password_enter.show()
@@ -122,12 +123,12 @@ class Connect_to_server:
                 R_repeat_password_enter.clear()
                 R_repeat_password_enter.hide()
                 R_passwords_button.hide()
-            elif data_key == 'info':
+            elif data_key == 'info':  # информация для профиля
                 REG_DATE = data_text[0]
                 WINS = data_text[1]
                 LOSE = data_text[2]
 
-    def send_data(self, ex, ey, sx, sy):
+    def send_data(self, ex, ey, sx, sy):  # отправка координат
         ex1, ey1, sx1, sy1 = width - (ex + 45), height - (ey + 45), width - (sx + 33), height - (sy + 33)
         data = f'{ex1} {ey1} {sx1} {sy1}'.encode()
         self.client_socket.send(data)
