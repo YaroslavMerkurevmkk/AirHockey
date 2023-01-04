@@ -66,6 +66,10 @@ class Connect_to_server:
                     REG_DATE = data_text[-3]
                     WINS = data_text[-2]
                     LOSE = data_text[-1]
+                    P_reg_date.set_text(f'Дата регистрации: {REG_DATE}')
+                    P_statistics_lose.set_text(f'Поражения: {LOSE}')
+                    P_statistics_win.set_text(f'Победы: {WINS}')
+                    P_login_label.set_text(f'Имя пользователя: {CURRENT_LOGIN}')
                     CURRENT_MANAGER = menu_manager
                 else:
                     B_status_error.show()
@@ -123,6 +127,9 @@ class Connect_to_server:
                 REG_DATE = data_text[0]
                 WINS = data_text[1]
                 LOSE = data_text[2]
+                P_reg_date.set_text(f'Дата регистрации: {REG_DATE}')
+                P_statistics_lose.set_text(f'Поражения: {LOSE}')
+                P_statistics_win.set_text(f'Победы: {WINS}')
 
     def send_data(self, ex, ey, sx, sy):  # отправка координат
         ex1, ey1, sx1, sy1 = width - (ex + 45), height - (ey + 45), width - (sx + 33), height - (sy + 33)
@@ -137,6 +144,9 @@ class Connect_to_server:
 
     def send_sql(self, text: str):
         self.client_socket.send(text.encode())
+
+    def send_get_info(self):
+        self.client_socket.send(f'get_info {CURRENT_LOGIN}'.encode())
 
 
 class Borders_wall(pygame.sprite.Sprite):
@@ -525,7 +535,7 @@ if __name__ == '__main__':
     M_start_game_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 200, 150, 50),
                                                        text='Начать игру',
                                                        manager=menu_manager)
-    M_prifile_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 270, 150, 50),
+    M_profile_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 270, 150, 50),
                                                     text='Профиль',
                                                     manager=menu_manager)
     M_settings_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 340, 150, 50),
@@ -547,7 +557,7 @@ if __name__ == '__main__':
     P_statistics_lose = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(10, 320, 150, 50),
                                                     text=f'Поражений: {LOSE}',
                                                     manager=profile_manager)
-    P_reg_date = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(10, 390, 150, 50),
+    P_reg_date = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(10, 390, 300, 50),
                                              text=f'Дата регистрации {REG_DATE}',
                                              manager=profile_manager)
     P_return_menu_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(10, 460, 200, 50),
@@ -648,8 +658,10 @@ if __name__ == '__main__':
                 elif event.ui_element == M_exit_button:
                     CURRENT_MANAGER = begin_manager
                     Server.send_sql(f'exit {CURRENT_LOGIN} exit')
-                elif event.ui_element == M_prifile_button:
+                elif event.ui_element == M_profile_button:
                     CURRENT_MANAGER = profile_manager
+                    Server.send_get_info()
+                    Server.recv_data()
                 elif event.ui_element == P_return_menu_button:
                     CURRENT_MANAGER = menu_manager
                 elif event.ui_element == A_return_menu_button:

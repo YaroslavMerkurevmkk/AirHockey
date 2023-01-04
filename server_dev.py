@@ -81,8 +81,8 @@ class SQL_database:  # Класс базы данных, который отве
     def get_info(self, login):  # функция, которая возвращает дату регистрации по логину пользователя
         with sqlite3.connect('users.db') as db:
             cursor = db.cursor()
-            date = cursor.execute("SELECT reg_date, win, lose FROM users WHERE login=?;", (login,)).fetchone()
-            result = f'{date[0]} {date[1]} {date[2]}'
+            data = cursor.execute("SELECT reg_date, win, lose FROM users WHERE login=?;", (login,)).fetchone()
+            result = f'{data[0]} {data[1]} {data[2]}'
             return result
 
     def New_password(self, login, new_password):  # Функция, которая перезаписывает хеш пароля в бд
@@ -170,8 +170,12 @@ def client(client_socket):
                     if sock != client_socket:
                         enemy_name = clients_name[sock]
                 client_socket.send(f'end {enemy_name}'.encode())
+                yield ('write', client_socket)
             elif key == 'game_log':  # получает результаты игры и логины игроков для записи лога
                 database.add_game_log(req_text[0], req_text[1], req_text[2])
+            elif key == 'get_info':
+                client_socket.send(f'info {database.get_info(req_text[0])}'.encode())
+                yield ('write', client_socket)
             elif key == 'gol':  # обрабатывает гол
                 clients_count[client_socket] += 1
             elif key == 'autogol':  # обрабатывает автогол
@@ -227,7 +231,8 @@ def client(client_socket):
                 elif req_text[0] == 'LOSE':
                     client_socket.send('stop LOSE'.encode())
                     yield ('write', client_socket)
-            elif all(i.isdigit() for i in request.decode().split()):  # во время игры пользователи постоянно обмениваются координатами врага и шайбы
+            elif all(i.isdigit() for i in
+                     request.decode().split()):  # во время игры пользователи постоянно обмениваются координатами врага и шайбы
                 for sock in clients_dict:
                     if sock != client_socket:
                         new_request = f'coords {request.decode("utf-8")} {str(clients_count[client_socket])} {str(clients_count[sock])}'
