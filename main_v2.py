@@ -27,7 +27,6 @@ class Connect_to_server:
         if data:
             data_key = data.decode().split()[0]  # key служит для распределения пакетов
             data_text = data.decode().split()[1:]  # информация, которая зависит от ключа
-            print(data.decode(), self.client_socket.getpeername())
             if data_key == 'coords':  # координаты врага и шайбы для получения синхронного изображения
                 new_enemy_coord, new_shaiba_coord, blue_count, red_count = data_text[:2], data_text[2:4], \
                                                                            data_text[-2], data_text[-1]
@@ -42,7 +41,7 @@ class Connect_to_server:
             elif data_key == 'end':  # клиент получает этот пакет в ответ на пустой запрос,
                 # который отправляется серверу, после получения результатов от сервера
                 self.client_socket.send(
-                    f'game_log {CURRENT_LOGIN} {data_text[0]} {A_result_label.text.split()[1]}'.encode())
+                    f'game_log {CURRENT_LOGIN} {data_text[0]} {A_result_label.text.split()[1][:-1]}'.encode())
             elif data_key == 'stop':  # ответ от сервера на конец игры, нужно для синхронной остановки игры на обоих клиентах
                 if data_text[0][:3] == 'WIN':
                     count = 0
@@ -54,7 +53,8 @@ class Connect_to_server:
                     Play = False
                     A_result_label.set_text('You WIN!')
                     CURRENT_MANAGER = after_game_manager
-                self.client_socket.send(''.encode())
+                self.client_socket.send('add_log'.encode())
+                Server.recv_data()
 
             elif data_key == 'Error':
                 C_status_error.show()

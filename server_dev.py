@@ -112,11 +112,15 @@ class SQL_database:  # Класс базы данных, который отве
             date = '.'.join(current_date[:3])
             time = '.'.join(current_date[3:])
             datetime_for_log = date + '-' + time
-            player1_id = cursor.execute("""SELECT id FROM users WHERE login = ?""", (player1,)).fetchone()[0][0]
-            player2_id = cursor.execute("""SELECT id FROM users WHERE login = ?""", (player2,)).fetchone()[0][0]
-            print(player1_id, player2_id)
-            cursor.execute("""INSERT INTO game_log(date, player1, player2, game_result) VALUES(?, ?, ?, ?)""",
+            player1_id = cursor.execute("""SELECT id FROM users WHERE login = ?""", (player1,)).fetchone()[0]
+            player2_id = cursor.execute("""SELECT id FROM users WHERE login = ?""", (player2,)).fetchone()[0]
+            cursor.execute("""INSERT INTO game_log(date, player_1, player_2, game_result) VALUES(?, ?, ?, ?)""",
                            (datetime_for_log, player1_id, player2_id, game_result))
+            if game_result == 'WIN':
+                cursor.execute("""UPDATE users SET win = win + 1 WHERE id = ?""", (player1_id,))
+            elif game_result == 'LOSE':
+                cursor.execute("""UPDATE users SET lose = lose + 1 WHERE id = ?""", (player1_id,))
+            db.commit()
 
     def Get_users_list(self, info, filter_info):  # Возвращает список пользователей, основанный на примененных фильтрах
         with sqlite3.connect('users.db') as db:
@@ -161,9 +165,7 @@ def client(client_socket):
         else:
             key = request.decode().split()[0]
             req_text = request.decode().split()[1:]
-            print(request.decode(), client_socket.getpeername())
-            if key == '':
-                print('-------------------------------------')
+            if request.decode() == 'add_log':
                 for sock in clients_name:
                     if sock != client_socket:
                         enemy_name = clients_name[sock]
@@ -230,7 +232,6 @@ def client(client_socket):
                     if sock != client_socket:
                         new_request = f'coords {request.decode("utf-8")} {str(clients_count[client_socket])} {str(clients_count[sock])}'
                         sock.send(new_request.encode())
-                        print(new_request, '   ', request.decode())
                     yield ('write', sock)
     client_socket.close()
 
