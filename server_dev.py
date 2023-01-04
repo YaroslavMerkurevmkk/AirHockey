@@ -12,6 +12,7 @@ to_write = {}
 clients_dict = {}
 clients_count = {}
 clients_name = {}
+CHECKER = {}
 
 
 class SQL_database:  # Класс базы данных, который отвечает за авторизацию и ведение логов
@@ -120,6 +121,7 @@ class SQL_database:  # Класс базы данных, который отве
                 cursor.execute("""UPDATE users SET win = win + 1 WHERE id = ?""", (player1_id,))
             elif game_result == 'LOSE':
                 cursor.execute("""UPDATE users SET lose = lose + 1 WHERE id = ?""", (player1_id,))
+            CHECKER[player1] = True
             db.commit()
 
     def Get_users_list(self, info, filter_info):  # Возвращает список пользователей, основанный на примененных фильтрах
@@ -149,14 +151,18 @@ def server():
         yield ('read', server_socket)
         client_socket, addr = server_socket.accept()  # read
         clients_dict[client_socket] = addr
-        clients_count[client_socket] = 6
+        clients_count[client_socket] = 0
         print('Connection from ', addr)
         tasks.append(client(client_socket))
 
 
 def client(client_socket):
     while True:
-
+        if all([CHECKER[i] for i in CHECKER]):
+            for sock in clients_count:
+                clients_count[sock] = 0
+            for login in CHECKER:
+                CHECKER[login] = False
         yield ('read', client_socket)
         request = client_socket.recv(4092)  # read
 
@@ -187,6 +193,7 @@ def client(client_socket):
                 result1 = ''
                 if result == req_text[0]:
                     clients_name[client_socket] = req_text[0]
+                    CHECKER[req_text[0]] = False
                     database.add_log(req_text[0], 'entrance')
                     result1 = database.get_info(result)
                 client_socket.send(f'auth {result} {result1}'.encode())
