@@ -12,7 +12,7 @@ WIN_OR_LOSE = ''
 
 class Connect_to_server:
     def __init__(self):
-        self.server_ip = '192.168.43.69'
+        self.server_ip = '192.168.43.131'
         self.server_port = 5002
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -27,8 +27,8 @@ class Connect_to_server:
         if data:
             data_key = data.decode().split()[0]  # key служит для распределения пакетов
             data_text = data.decode().split()[1:]  # информация, которая зависит от ключа
+            print(data.decode(), self.client_socket.getpeername())
             if data_key == 'coords':  # координаты врага и шайбы для получения синхронного изображения
-                print(data_text)
                 new_enemy_coord, new_shaiba_coord, blue_count, red_count = data_text[:2], data_text[2:4], \
                                                                            data_text[-2], data_text[-1]
                 enemy_sprite.update(new_enemy_coord)
@@ -37,24 +37,20 @@ class Connect_to_server:
                 Count.update_count(blue_count, red_count)
                 if int(blue_count) == 7:  # если один из счетчиков достигает 7, то на сервет отправляется событие остановки
                     self.client_socket.send('stop WIN'.encode())
-                    print('send win')
                 elif int(red_count) == 7:
                     self.client_socket.send('stop LOSE'.encode())
-                    print('send lose')
             elif data_key == 'end':  # клиент получает этот пакет в ответ на пустой запрос,
                 # который отправляется серверу, после получения результатов от сервера
                 self.client_socket.send(
                     f'game_log {CURRENT_LOGIN} {data_text[0]} {A_result_label.text.split()[1]}'.encode())
             elif data_key == 'stop':  # ответ от сервера на конец игры, нужно для синхронной остановки игры на обоих клиентах
-                if data_text[0] == 'WIN':
+                if data_text[0][:3] == 'WIN':
                     count = 0
-                    print('get win')
                     Play = False  # прекражение цикла игры
                     A_result_label.set_text('You LOSE!')
                     CURRENT_MANAGER = after_game_manager
-                elif data_text[0] == 'LOSE':
+                elif data_text[0][:4] == 'LOSE':
                     count = 0
-                    print('get lose')
                     Play = False
                     A_result_label.set_text('You WIN!')
                     CURRENT_MANAGER = after_game_manager
@@ -223,7 +219,6 @@ class Enemy(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, new_enemy_coords):
-        print(new_enemy_coords)
         self.rect.x = int(new_enemy_coords[0])
         self.rect.y = int(new_enemy_coords[1])
 
@@ -266,8 +261,6 @@ class Shaiba(pygame.sprite.Sprite):
     def update(self):
         for player in player_sprites:
             if pygame.sprite.collide_mask(self, player):
-                print('yes')
-
                 self.vx = 2
                 self.vy = 2
                 self.count = 1
@@ -279,7 +272,6 @@ class Shaiba(pygame.sprite.Sprite):
                     self.vy *= -1
         for enemy in enemy_sprite:
             if pygame.sprite.collide_mask(self, enemy):
-                print('yes1')
                 self.vx = 2
                 self.vy = 2
                 self.count = 1
@@ -567,9 +559,7 @@ if __name__ == '__main__':
     while running:
         time_delta = clock.tick(60) / 1000
         if count != 0:
-            print(3)
             Server.recv_data()
-            print(4)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 conformation_dialog_exit = pygame_gui.windows.UIConfirmationDialog(rect=pygame.Rect(130, 207, 250, 200),
@@ -684,9 +674,7 @@ if __name__ == '__main__':
             shaiba_sprite.draw(screen)
             for shaiba in shaiba_sprite:
                 for enemy in player_sprites:
-                    print(1)
                     Server.send_data(enemy.rect.x, enemy.rect.y, shaiba.rect.x, shaiba.rect.y)
-                    print(2)
             enemy_sprite.draw(screen)
             Count.show_count(screen)
             gate_sprite_blue.draw(screen)
@@ -698,6 +686,5 @@ if __name__ == '__main__':
             pygame.mouse.set_visible(True)
             screen.blit(background, (0, 0))
             CURRENT_MANAGER.draw_ui(screen)
-        print(Play)
         pygame.display.flip()
         clock.tick(60)

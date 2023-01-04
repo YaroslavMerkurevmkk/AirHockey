@@ -138,7 +138,7 @@ database = SQL_database()
 def server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('192.168.43.69', 5002))
+    server_socket.bind(('192.168.43.131', 5002))
     server_socket.listen(2)
 
     while True:
@@ -161,6 +161,7 @@ def client(client_socket):
         else:
             key = request.decode().split()[0]
             req_text = request.decode().split()[1:]
+            print(request.decode(), client_socket.getpeername())
             if key == '':
                 print('-------------------------------------')
                 for sock in clients_name:
@@ -224,13 +225,12 @@ def client(client_socket):
                 elif req_text[0] == 'LOSE':
                     client_socket.send('stop LOSE'.encode())
                     yield ('write', client_socket)
-            else:  # во время игры пользователи постоянно обмениваются координатами врага и шайбы
+            elif all(i.isdigit() for i in request.decode().split()):  # во время игры пользователи постоянно обмениваются координатами врага и шайбы
                 for sock in clients_dict:
                     if sock != client_socket:
-                        print(request.decode())
                         new_request = f'coords {request.decode("utf-8")} {str(clients_count[client_socket])} {str(clients_count[sock])}'
                         sock.send(new_request.encode())
-                        print(new_request)
+                        print(new_request, '   ', request.decode())
                     yield ('write', sock)
     client_socket.close()
 
