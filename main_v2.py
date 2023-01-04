@@ -332,6 +332,26 @@ class Counter:
         screen.blit(text2, (text_x2, text_y2))
 
 
+class Background:
+    wallpapers = [pygame.image.load('data/wallpaper1.jpg'),
+                  pygame.image.load('data/wallpaper2.jpg'),
+                  pygame.image.load('data/wallpaper3.jpg'),
+                  pygame.image.load('data/wallpaper4.jpg'),
+                  pygame.image.load('data/wallpaper5.jpg')]
+
+    def __init__(self, width, height):
+        self.count = 0
+        self.image = Background.wallpapers[self.count]
+        self.rect = (width, height)
+
+    def change_wallpaper(self):
+        if self.count < 4:
+            self.count += 1
+        else:
+            self.count = 0
+        self.image = Background.wallpapers[self.count]
+
+
 if __name__ == '__main__':
     Server = Connect_to_server()  # соединение с сервером
 
@@ -364,13 +384,12 @@ if __name__ == '__main__':
     Enemy()  # спрайт соперника
     Shaiba()  # спрайт шайбы
 
+    background = Background(510, 615)
+
     clock = pygame.time.Clock()
     count = 0
     running = True
     Play = False
-
-    background = pygame.Surface((510, 615))
-    background.fill('black')
 
     ############################################################################################################
     # стартовое окно
@@ -564,6 +583,15 @@ if __name__ == '__main__':
                                                         text='Вернуться в меню',
                                                         manager=profile_manager)
     ############################################################################################################
+    # настройки
+    settings_manager = pygame_gui.UIManager((510, 615))
+    S_change_wallpaper = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(155, 247, 200, 50),
+                                                      text='Сменить обои',
+                                                      manager=settings_manager)
+    S_return_menu = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(155, 317, 200, 50),
+                                                 text='Вернуться в меню',
+                                                 manager=settings_manager)
+    ############################################################################################################
     CURRENT_MANAGER = begin_manager
 
     while running:
@@ -662,6 +690,12 @@ if __name__ == '__main__':
                     CURRENT_MANAGER = profile_manager
                     Server.send_get_info()
                     Server.recv_data()
+                elif event.ui_element == M_settings_button:
+                    CURRENT_MANAGER = settings_manager
+                elif event.ui_element == S_return_menu:
+                    CURRENT_MANAGER = menu_manager
+                elif event.ui_element == S_change_wallpaper:
+                    background.change_wallpaper()
                 elif event.ui_element == P_return_menu_button:
                     CURRENT_MANAGER = menu_manager
                 elif event.ui_element == A_return_menu_button:
@@ -696,7 +730,7 @@ if __name__ == '__main__':
                 CURRENT_MANAGER = after_game_manager
         else:
             pygame.mouse.set_visible(True)
-            screen.blit(background, (0, 0))
+            screen.blit(background.image, (0, 0))
             CURRENT_MANAGER.draw_ui(screen)
         pygame.display.flip()
         clock.tick(60)
