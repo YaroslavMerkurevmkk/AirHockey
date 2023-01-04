@@ -393,7 +393,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # стартовое окно
-    begin_manager = pygame_gui.UIManager((510, 615))
+    begin_manager = pygame_gui.UIManager((510, 615), 'theme.json')
 
     B_authorization_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(350, 45, 150, 50),
                                                           text='Войти',
@@ -421,7 +421,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # окно после игры
-    after_game_manager = pygame_gui.UIManager((510, 615))
+    after_game_manager = pygame_gui.UIManager((510, 615), 'theme.json')
     A_result_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(180, 100, 150, 50),
                                                  text=f'YOU {WIN_OR_LOSE}!',
                                                  manager=after_game_manager)
@@ -431,7 +431,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # восстановление пароля
-    rescue_manager = pygame_gui.UIManager((510, 615))
+    rescue_manager = pygame_gui.UIManager((510, 615), 'theme.json')
 
     R_login_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(15, 10, 150, 50),
                                                 text='Введите логин:',
@@ -502,7 +502,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # регистрация аккаунта
-    create_account_manager = pygame_gui.UIManager((510, 615))
+    create_account_manager = pygame_gui.UIManager((510, 615), 'theme.json')
 
     C_login_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(15, 10, 150, 50),
                                                 text='Введите логин:',
@@ -549,7 +549,7 @@ if __name__ == '__main__':
     C_status_error.hide()
     ############################################################################################################
     # меню
-    menu_manager = pygame_gui.UIManager((510, 615))
+    menu_manager = pygame_gui.UIManager((510, 615), 'theme.json')
 
     M_start_game_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 200, 150, 50),
                                                        text='Начать игру',
@@ -565,7 +565,7 @@ if __name__ == '__main__':
                                                  manager=menu_manager)
     ############################################################################################################
     # профиль
-    profile_manager = pygame_gui.UIManager((510, 615))
+    profile_manager = pygame_gui.UIManager((510, 615), 'theme.json')
 
     P_login_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(155, 100, 200, 50),
                                                 text=f'Имя игрока - {CURRENT_LOGIN}',
@@ -584,7 +584,7 @@ if __name__ == '__main__':
                                                         manager=profile_manager)
     ############################################################################################################
     # настройки
-    settings_manager = pygame_gui.UIManager((510, 615))
+    settings_manager = pygame_gui.UIManager((510, 615), 'theme.json')
     S_change_wallpaper = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(155, 247, 200, 50),
                                                       text='Сменить обои',
                                                       manager=settings_manager)

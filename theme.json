@@ -1,0 +1,60 @@
+ {
+     "button":
+     {
+         "colours":
+         {
+             "normal_bg":"grey",
+             "hovered_bg":"#35393e",
+             "disabled_bg":"#25292e",
+             "selected_bg":"#193754",
+             "active_bg":"#193754",
+             "dark_bg":"#15191e",
+             "normal_text":"black",
+             "hovered_text":"#FFFFFF",
+             "selected_text":"#FFFFFF",
+             "disabled_text":"#6d736f",
+             "active_text":"#FFFFFF",
+             "normal_border": "#DDDDDD",
+             "hovered_border": "#B0B0B0",
+             "disabled_border": "#808080",
+             "selected_border": "#8080B0",
+             "active_border": "#8080B0"
+         },
+
+         "font":
+         {
+             "name": "montserrat",
+             "size": "50",
+             "bold": "0",
+             "italic": "0"
+         }
+     },
+     "label":
+     {
+         "colours":
+         {
+             "normal_text": "white"
+         },
+         "font":
+         {
+             "name": "montserrat",
+             "size": "50",
+             "bold": "1",
+             "italic": "0"
+         }
+     },
+     "text_entry_line":
+     {
+         "colors":
+         {
+             "normal_border": "dark_grey",
+             "normal_text": "black",
+             "dark_bg": "grey"
+         },
+         "font":
+         {
+             "name": "montserrat",
+             "size": "50"
+         }
+     }
+ }
