@@ -47,7 +47,7 @@
      {
          "colors":
          {
-             "normal_border": "dark_grey",
+             "normal_border": "grey",
              "normal_text": "black",
              "dark_bg": "grey"
          },

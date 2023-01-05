@@ -345,7 +345,7 @@ class Background:
         self.rect = (width, height)
 
     def change_wallpaper(self):
-        if self.count < 4:
+        if self.count < len(Background.wallpapers) - 1:
             self.count += 1
         else:
             self.count = 0

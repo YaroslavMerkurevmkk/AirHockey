@@ -62,7 +62,7 @@ class SQL_database:  # Класс базы данных, который отве
 
     def Get_question(self,
                      login):  # После того, как логин был верно указан, пользователю возвращается секретный вопрос, на который необходимо ответить
-        with sqlite3.connect('users.db') as db:
+        with sqlite3.connect('Users.db') as db:
             cursor = db.cursor()
             question = cursor.execute("SELECT secret_question FROM users WHERE login=?;", (login,)).fetchone()[0]
             return question
@@ -88,7 +88,7 @@ class SQL_database:  # Класс базы данных, который отве
 
     def New_password(self, login, new_password):  # Функция, которая перезаписывает хеш пароля в бд
         new_password_hash = hashlib.md5(new_password.encode('utf-8')).hexdigest()
-        with sqlite3.connect('users.db') as db:
+        with sqlite3.connect('Users.db') as db:
             cursor = db.cursor()
             cursor.execute("UPDATE users SET password=? WHERE login=?;", (new_password_hash, login))
             cursor.execute('select * from users;')
@@ -125,7 +125,7 @@ class SQL_database:  # Класс базы данных, который отве
             db.commit()
 
     def Get_users_list(self, info, filter_info):  # Возвращает список пользователей, основанный на примененных фильтрах
-        with sqlite3.connect('users.db') as db:
+        with sqlite3.connect('Users.db') as db:
             cursor = db.cursor()
             if len(info) != 0:
                 if filter_info == 'login':
