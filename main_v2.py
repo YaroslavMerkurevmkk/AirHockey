@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 import socket
+import random
 
 CURRENT_LOGIN = ''
 CURRENT_MANAGER = None
@@ -299,6 +300,7 @@ class Shaiba(pygame.sprite.Sprite):
             self.count = 0
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, gate_sprite_red):
+            self.create_particles((255, 0))
             Server.send_gol(True)
             self.gol()
         if pygame.sprite.spritecollideany(self, gate_sprite_blue):
@@ -308,6 +310,14 @@ class Shaiba(pygame.sprite.Sprite):
     def new_coords(self, new_shaiba_coords):
         self.rect.x = int(new_shaiba_coords[0])
         self.rect.y = int(new_shaiba_coords[1])
+
+    def create_particles(self, pos):
+        # количество создаваемых частиц
+        particle_count = 20
+        # возможные скорости
+        numbers = range(-5, 6)
+        for _ in range(particle_count):
+            Particle(pos, random.choice(numbers), random.choice(numbers))
 
 
 class Counter:
@@ -321,12 +331,12 @@ class Counter:
 
     def show_count(self, screen):
         font = pygame.font.Font(None, 50)
-        text1 = font.render(f"{self.count_red}", True, 'blue')
+        text1 = font.render(f"{self.count_red}", True, 'green')
         text_x1 = 5
         text_y1 = 5
         screen.blit(text1, (text_x1, text_y1))
 
-        text2 = font.render(f"{self.count_blue}", True, 'blue')
+        text2 = font.render(f"{self.count_blue}", True, 'green')
         text_x2 = 5
         text_y2 = 610 - text2.get_height()
         screen.blit(text2, (text_x2, text_y2))
@@ -352,6 +362,40 @@ class Background:
         self.image = Background.wallpapers[self.count]
 
 
+class Particle(pygame.sprite.Sprite):
+    print('yes')
+    # сгенерируем частицы разного размера
+    fire = [pygame.image.load('data/star_for_game.png')]
+    for scale in (5, 10, 20):
+        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+
+    def __init__(self, pos, dx, dy):
+        super().__init__(particle_sprites)
+        self.add(particle_sprites)
+        self.screen_rect = (0, 0, 510, 615)
+        self.image = random.choice(self.fire)
+        self.rect = self.image.get_rect()
+
+        # у каждой частицы своя скорость — это вектор
+        self.velocity = [dx, dy]
+        # и свои координаты
+        self.rect.x, self.rect.y = pos
+
+        # гравитация будет одинаковой (значение константы)
+        self.gravity = 1
+
+    def update(self):
+        # применяем гравитационный эффект:
+        # движение с ускорением под действием гравитации
+        self.velocity[1] += self.gravity
+        # перемещаем частицу
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        # убиваем, если частица ушла за экран
+        if not self.rect.colliderect(self.screen_rect):
+            self.kill()
+
+
 if __name__ == '__main__':
     Server = Connect_to_server()  # соединение с сервером
 
@@ -370,6 +414,7 @@ if __name__ == '__main__':
     enemy_sprite = pygame.sprite.Group()
     gate_sprite_blue = pygame.sprite.Group()
     gate_sprite_red = pygame.sprite.Group()
+    particle_sprites = pygame.sprite.Group()
 
     Borders_wall(0, 0, 5, 615)  # вертикальные стенки
     Borders_wall(505, 0, 510, 615)
@@ -710,7 +755,7 @@ if __name__ == '__main__':
             keys = pygame.key.get_pressed()
             player_sprites.update(keys)
             pygame.mouse.set_visible(False)
-            screen.fill('yellow')
+            screen.fill('blue')
             pygame.draw.circle(screen, 'green', (255, 307), 50, 5)
             wall_sprites_hor.draw(screen)
             wall_sprites_ver.draw(screen)
@@ -725,6 +770,8 @@ if __name__ == '__main__':
             Count.show_count(screen)
             gate_sprite_blue.draw(screen)
             gate_sprite_red.draw(screen)
+            particle_sprites.update()
+            particle_sprites.draw(screen)
             count += 1
             if not Play:
                 CURRENT_MANAGER = after_game_manager
