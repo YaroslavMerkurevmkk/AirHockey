@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 import pygame_gui
 import socket
 import random
@@ -272,6 +273,7 @@ class Shaiba(pygame.sprite.Sprite):
     def update(self):
         for player in player_sprites:
             if pygame.sprite.collide_mask(self, player):
+                hit_effect.play()
                 self.vx = 2
                 self.vy = 2
                 self.count = 1
@@ -283,6 +285,7 @@ class Shaiba(pygame.sprite.Sprite):
                     self.vy *= -1
         for enemy in enemy_sprite:
             if pygame.sprite.collide_mask(self, enemy):
+                hit_effect.play()
                 self.vx = 2
                 self.vy = 2
                 self.count = 1
@@ -293,14 +296,17 @@ class Shaiba(pygame.sprite.Sprite):
                     self.vx *= 1
                     self.vy *= -1
         if pygame.sprite.spritecollideany(self, wall_sprites_hor):
+            hit_effect.play()
             self.vy = -self.vy
             self.count = 0
         if pygame.sprite.spritecollideany(self, wall_sprites_ver):
+            hit_effect.play()
             self.vx = -self.vx
             self.count = 0
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, gate_sprite_red):
             self.create_particles((255, 0))
+            print('yes')
             Server.send_gol(True)
             self.gol()
         if pygame.sprite.spritecollideany(self, gate_sprite_blue):
@@ -577,7 +583,7 @@ if __name__ == '__main__':
     C_return_begin_manager_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(15, 360, 150, 50),
                                                                  text='Вернуться',
                                                                  manager=create_account_manager)
-    C_reg_account_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 360, 150, 50),
+    C_reg_account_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 360, 170, 50),
                                                         text='Зарегистрировать',
                                                         manager=create_account_manager)
     C_status_passwords = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(180, 560, 150, 50),
@@ -639,6 +645,14 @@ if __name__ == '__main__':
     ############################################################################################################
     CURRENT_MANAGER = begin_manager
 
+    mixer.init()
+    mixer.music.load('data/background_sound.wav')
+    mixer.music.play(-1)
+    mixer.music.set_volume(0.2)
+
+    hit_effect = pygame.mixer.Sound('data/hit_sound.wav')
+    button_click = pygame.mixer.Sound('data/button_click.wav')
+
     while running:
         time_delta = clock.tick(60) / 1000
         if count != 0:
@@ -655,6 +669,7 @@ if __name__ == '__main__':
                 if event.ui_element == conformation_dialog_exit:
                     running = False
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                button_click.play()
                 if event.ui_element == B_authorization_button:
                     if not B_login_enter.get_text() or not B_pass_enter.get_text():
                         B_status_error.show()
@@ -752,6 +767,7 @@ if __name__ == '__main__':
         CURRENT_MANAGER.update(time_delta)
 
         if Play:
+            mixer.music.stop()
             keys = pygame.key.get_pressed()
             player_sprites.update(keys)
             pygame.mouse.set_visible(False)
@@ -774,6 +790,7 @@ if __name__ == '__main__':
             particle_sprites.draw(screen)
             count += 1
             if not Play:
+                mixer.music.play(-1)
                 CURRENT_MANAGER = after_game_manager
         else:
             pygame.mouse.set_visible(True)
