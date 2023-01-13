@@ -307,6 +307,7 @@ class Shaiba(pygame.sprite.Sprite):
             Server.send_gol(True)
             self.gol()
         if pygame.sprite.spritecollideany(self, gate_sprite_blue):
+            self.create_particles((255, 0))
             Server.send_gol(False)
             self.gol()
 
