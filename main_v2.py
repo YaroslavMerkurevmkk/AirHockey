@@ -56,6 +56,7 @@ class Connect_to_server:
                     A_result_label.set_text('You WIN!')
                     CURRENT_MANAGER = after_game_manager
                 self.client_socket.send('add_log'.encode())
+                mixer.music.play(-1)
                 Server.recv_data()
 
             elif data_key == 'Error':
@@ -273,7 +274,6 @@ class Shaiba(pygame.sprite.Sprite):
     def update(self):
         for player in player_sprites:
             if pygame.sprite.collide_mask(self, player):
-                hit_effect.play()
                 self.vx = 2
                 self.vy = 2
                 self.count = 1
@@ -285,7 +285,6 @@ class Shaiba(pygame.sprite.Sprite):
                     self.vy *= -1
         for enemy in enemy_sprite:
             if pygame.sprite.collide_mask(self, enemy):
-                hit_effect.play()
                 self.vx = 2
                 self.vy = 2
                 self.count = 1
@@ -296,11 +295,9 @@ class Shaiba(pygame.sprite.Sprite):
                     self.vx *= 1
                     self.vy *= -1
         if pygame.sprite.spritecollideany(self, wall_sprites_hor):
-            hit_effect.play()
             self.vy = -self.vy
             self.count = 0
         if pygame.sprite.spritecollideany(self, wall_sprites_ver):
-            hit_effect.play()
             self.vx = -self.vx
             self.count = 0
         self.rect = self.rect.move(self.vx, self.vy)
@@ -647,10 +644,9 @@ if __name__ == '__main__':
 
     mixer.init()
     mixer.music.load('data/background_sound.wav')
-    mixer.music.play(-1)
     mixer.music.set_volume(0.2)
+    mixer.music.play(-1)
 
-    hit_effect = pygame.mixer.Sound('data/hit_sound.wav')
     button_click = pygame.mixer.Sound('data/button_click.wav')
 
     while running:
@@ -790,7 +786,7 @@ if __name__ == '__main__':
             particle_sprites.draw(screen)
             count += 1
             if not Play:
-                mixer.music.play(-1)
+                mixer.music.pause()
                 CURRENT_MANAGER = after_game_manager
         else:
             pygame.mouse.set_visible(True)
