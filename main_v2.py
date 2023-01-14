@@ -303,11 +303,12 @@ class Shaiba(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, gate_sprite_red):
             self.create_particles((255, 0))
-            print('yes')
+            print('yes1')
             Server.send_gol(True)
             self.gol()
         if pygame.sprite.spritecollideany(self, gate_sprite_blue):
             self.create_particles((255, 0))
+            print('yes2')
             Server.send_gol(False)
             self.gol()
 
@@ -442,7 +443,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # стартовое окно
-    begin_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    begin_manager = pygame_gui.UIManager((510, 615))
 
     B_authorization_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(350, 45, 150, 50),
                                                           text='Войти',
@@ -470,7 +471,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # окно после игры
-    after_game_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    after_game_manager = pygame_gui.UIManager((510, 615))
     A_result_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(180, 100, 150, 50),
                                                  text=f'YOU {WIN_OR_LOSE}!',
                                                  manager=after_game_manager)
@@ -480,7 +481,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # восстановление пароля
-    rescue_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    rescue_manager = pygame_gui.UIManager((510, 615))
 
     R_login_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(15, 10, 150, 50),
                                                 text='Введите логин:',
@@ -551,7 +552,7 @@ if __name__ == '__main__':
 
     ############################################################################################################
     # регистрация аккаунта
-    create_account_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    create_account_manager = pygame_gui.UIManager((510, 615))
 
     C_login_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(15, 10, 150, 50),
                                                 text='Введите логин:',
@@ -598,7 +599,7 @@ if __name__ == '__main__':
     C_status_error.hide()
     ############################################################################################################
     # меню
-    menu_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    menu_manager = pygame_gui.UIManager((510, 615))
 
     M_start_game_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(180, 200, 150, 50),
                                                        text='Начать игру',
@@ -614,7 +615,7 @@ if __name__ == '__main__':
                                                  manager=menu_manager)
     ############################################################################################################
     # профиль
-    profile_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    profile_manager = pygame_gui.UIManager((510, 615))
 
     P_login_label = pygame_gui.elements.UILabel(relative_rect=pygame.Rect(155, 100, 200, 50),
                                                 text=f'Имя игрока - {CURRENT_LOGIN}',
@@ -633,7 +634,7 @@ if __name__ == '__main__':
                                                         manager=profile_manager)
     ############################################################################################################
     # настройки
-    settings_manager = pygame_gui.UIManager((510, 615), 'theme.json')
+    settings_manager = pygame_gui.UIManager((510, 615))
     S_change_wallpaper = pygame_gui.elements.UIButton(relative_rect=pygame.Rect(155, 247, 200, 50),
                                                       text='Сменить обои',
                                                       manager=settings_manager)
@@ -647,6 +648,8 @@ if __name__ == '__main__':
     mixer.music.load('data/background_sound.wav')
     mixer.music.set_volume(0.2)
     mixer.music.play(-1)
+
+    hot_effect = mixer.Sound('data/hit_sound.wav')
 
     button_click = pygame.mixer.Sound('data/button_click.wav')
 
